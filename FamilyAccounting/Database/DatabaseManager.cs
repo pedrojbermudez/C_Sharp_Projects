@@ -10,6 +10,9 @@ namespace FamilyAccounting.Database
         private static MySqlConnection conn;
         private string dataConnection;
 
+        /// <summary>
+        /// Default user, password, database and server
+        /// </summary>
         public DatabaseManager()
         {
             dataConnection = "server=127.0.0.1;uid=root;pwd=toor;"
@@ -18,6 +21,10 @@ namespace FamilyAccounting.Database
             CreateTables();
         }
 
+        /// <summary>
+        /// Can write the server
+        /// </summary>
+        /// <param name="host">Host name or IP</param>
         public DatabaseManager(string host)
         {
             dataConnection = "server=" + host + ";uid=root;pwd=toor;"
@@ -26,6 +33,12 @@ namespace FamilyAccounting.Database
             CreateTables();
         }
 
+        /// <summary>
+        /// Can write the server, user and password
+        /// </summary>
+        /// <param name="host">Host name or IP</param>
+        /// <param name="user">Username</param>
+        /// <param name="password">User's password</param>
         public DatabaseManager(string host, string user, string password)
         {
             dataConnection = "server=" + host + ";uid=" + user + ";pwd=" + password + ";"
@@ -34,6 +47,13 @@ namespace FamilyAccounting.Database
             CreateTables();
         }
 
+        /// <summary>
+        /// Can write the server, user, password and database.
+        /// </summary>
+        /// <param name="host">Host name or IP</param>
+        /// <param name="user">Username</param>
+        /// <param name="password">User's password</param>
+        /// <param name="database">Database used</param>
         public DatabaseManager(string host, string user, string password, string database)
         {
             dataConnection = "SERVER=" + host + ";UID=" + user + ";PASSWORD=" + password + ";"
@@ -60,6 +80,10 @@ namespace FamilyAccounting.Database
             }
         }
 
+        /// <summary>
+        /// Close connection to the database.
+        /// </summary>
+        /// <returns>true it was possible to close, false otherwise</returns>
         private bool CloseConnection()
         {
             try
@@ -74,6 +98,9 @@ namespace FamilyAccounting.Database
             return true;
         }
 
+        /// <summary>
+        /// Create table sql sentece when the object is created.
+        /// </summary>
         private void CreateTables()
         {
             if (this.DBConnection())
@@ -123,9 +150,14 @@ namespace FamilyAccounting.Database
             }
         }
 
+        /// <summary>
+        /// Used by select sentences
+        /// </summary>
+        /// <param name="sqlSentence">The select sentence</param>
+        /// <returns>A list with the query result</returns>
         public List<string>[] SQLGetSentence(string sqlSentence)
         {
-           
+
             List<string>[] result = null;
             if (this.DBConnection())
             {
@@ -169,11 +201,17 @@ namespace FamilyAccounting.Database
             return result;
         }
 
+
+        /// <summary>
+        /// Count how many id has the query.
+        /// </summary>
+        /// <param name="table"></param>
+        /// <returns>the total count of id</returns>
         public int Count(string table)
         {
             if (this.DBConnection())
             {
-                using (MySqlCommand cmd = new MySqlCommand("select id from " + table+";", conn))
+                using (MySqlCommand cmd = new MySqlCommand("select id from " + table + ";", conn))
                 {
                     int count = int.Parse(cmd.ExecuteScalar().ToString());
                     this.CloseConnection();
