@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FamilyAccounting.Utils;
 
-namespace FamilyAccounting.Database
+namespace FamilyAccounting.Database.Category
 {
     class CategoryDb
     {
@@ -31,19 +32,14 @@ namespace FamilyAccounting.Database
             this.conn.SQLSentence("delete from " + Constants.Tables.category + " where id=" + id + ";");
         }
 
-        public List<string>[] GetSources(int currentElement, int totalElement)
+        public Dictionary<int, List<string>> GetSources(int currentElement, int totalElement)
         {
             return this.conn.SQLGetSentence("select * from " + Constants.Tables.category + " limit " + currentElement + ", " + totalElement + ";");
         }
 
-        public List<string>[] GetSources()
+        public Dictionary<int, List<string>> GetSources()
         {
             return this.conn.SQLGetSentence("select * from " + Constants.Tables.category + ";");
-        }
-
-        public void GetCategory(int id)
-        {
-            List<string>[] tmp = this.conn.SQLGetSentence("select * from " + Constants.Tables.category + " where id=" + id + ";");
         }
     }
 }

@@ -2,6 +2,7 @@
 using MySql.Data.MySqlClient;
 using System.Collections.Generic;
 using System.Data;
+using FamilyAccounting.Utils;
 
 namespace FamilyAccounting.Database
 {
@@ -15,7 +16,7 @@ namespace FamilyAccounting.Database
         /// </summary>
         public DatabaseManager()
         {
-            dataConnection = "server=127.0.0.1;uid=root;pwd=toor;"
+            dataConnection = "server=127.0.0.1;user=root;password=toor;"
                 + "database=family_acounting;";
             conn = new MySqlConnection(dataConnection);
             CreateTables();
@@ -27,8 +28,8 @@ namespace FamilyAccounting.Database
         /// <param name="host">Host name or IP</param>
         public DatabaseManager(string host)
         {
-            dataConnection = "server=" + host + ";uid=root;pwd=toor;"
-                + "database=family_acounting;";
+            dataConnection = "server=" + host + ";user=root;password=toor;"
+                + "database=family_accounting;";
             conn = new MySqlConnection(dataConnection);
             CreateTables();
         }
@@ -41,8 +42,8 @@ namespace FamilyAccounting.Database
         /// <param name="password">User's password</param>
         public DatabaseManager(string host, string user, string password)
         {
-            dataConnection = "server=" + host + ";uid=" + user + ";pwd=" + password + ";"
-                + "database=family_acounting;";
+            dataConnection = "server=" + host + ";user=" + user + ";password=" + password + ";"
+                + "database=family_accounting;";
             conn = new MySqlConnection(dataConnection);
             CreateTables();
         }
@@ -56,8 +57,8 @@ namespace FamilyAccounting.Database
         /// <param name="database">Database used</param>
         public DatabaseManager(string host, string user, string password, string database)
         {
-            dataConnection = "SERVER=" + host + ";UID=" + user + ";PASSWORD=" + password + ";"
-                + "DATABASE=" + database + ";";
+            dataConnection = "server=" + host + ";user=" + user + ";password=" + password + ";"
+                + "database=" + database + ";";
             conn = new MySqlConnection(dataConnection);
             CreateTables();
         }
@@ -107,11 +108,11 @@ namespace FamilyAccounting.Database
             {
                 using (MySqlCommand cmd = new MySqlCommand(
                     // create table movement
-                    "create table if not exists " + Constants.Tables.category.ToString() + " (id int PRIMARY KEY AUTOINCREMENT, name blob not null); "
+                    "create table if not exists " + Constants.Tables.category.ToString() + " (id int PRIMARY KEY AUTO_INCREMENT, name blob not null); "
                     //create table money_source
-                    + "create table if not exists " + Constants.Tables.money_source.ToString() + " (id int PRIMARY KEY AUTOINCREMENT, name blob not null, total int not null); "
+                    + "create table if not exists " + Constants.Tables.money_source.ToString() + " (id int PRIMARY KEY AUTO_INCREMENT, name blob not null, total int not null); "
                     // create table movement
-                    + "create table if not exists " + Constants.Tables.movement.ToString() + "(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, source_id int not null, category_id int not null, name mediumblob not null, movement_date date not null, income int, outgoing int, constraint source_id_movementsfk foreign key(source_id) references " + Constants.Tables.money_source.ToString() + "(id) on update cascade on delete cascade, constraint category_id_movementfk foreign key(category_id) references " + Constants.Tables.category.ToString() + "(id) on update cascade on delete cascade);", conn))
+                    + "create table if not exists " + Constants.Tables.movement.ToString() + " (id INTEGER PRIMARY KEY AUTO_INCREMENT NOT NULL, source_id int not null, category_id int not null, name mediumblob not null, movement_date date not null, income int, outgoing int, constraint source_id_movementsfk foreign key(source_id) references " + Constants.Tables.money_source.ToString() + "(id) on update cascade on delete cascade, constraint category_id_movementfk foreign key(category_id) references " + Constants.Tables.category.ToString() + "(id) on update cascade on delete cascade);", conn))
                 {
                     cmd.ExecuteNonQuery();
                     this.CloseConnection();
@@ -155,10 +156,9 @@ namespace FamilyAccounting.Database
         /// </summary>
         /// <param name="sqlSentence">The select sentence</param>
         /// <returns>A list with the query result</returns>
-        public List<string>[] SQLGetSentence(string sqlSentence)
+        public Dictionary<int, List<string>> SQLGetSentence(string sqlSentence)
         {
-
-            List<string>[] result = null;
+            Dictionary<int, List<string>> result = null;
             if (this.DBConnection())
             {
                 using (MySqlCommand cmd = new MySqlCommand(sqlSentence, conn))
@@ -171,15 +171,16 @@ namespace FamilyAccounting.Database
                         tbl.Load(reader);
                         int totalRows = tbl.Rows.Count;
                         int totalFields = tbl.Columns.Count;
-                        result = new List<string>[totalRows];
+                        result = new Dictionary<int, List<string>>();
                         int currentRow = 0;
                         while (reader.Read())
                         {
-                            result[currentRow] = new List<string>();
-                            for (int i = 0; i < totalFields; i++)
+                            List<string> tmp = new List<string>();
+                            for (int i = 1; i < totalFields; i++)
                             {
-                                result[currentRow].Add(reader[i].ToString());
+                                tmp.Add(reader[i].ToString());
                             }
+                            result.Add(int.Parse(reader[0].ToString()), tmp);
                             currentRow++;
                         }
                     }

@@ -4,8 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
+using FamilyAccounting.Utils;
 
-namespace FamilyAccounting.Database
+namespace FamilyAccounting.Database.Source
 {
     class SourceDb
     {
@@ -13,7 +14,7 @@ namespace FamilyAccounting.Database
 
         public SourceDb()
         {
-            conn = new DatabaseManager();
+            conn = new DatabaseManager("127.0.0.1", "root", "toor", "family_accounting");
         }
 
         public void NewSource(string name, float total)
@@ -32,19 +33,24 @@ namespace FamilyAccounting.Database
             this.conn.SQLSentence("delete from " + Constants.Tables.money_source + " where id=" + id + ";");
         }
 
-        public List<string>[] GetSources(int currentElement, int totalElement)
+        public Dictionary<int, List<string>> GetSources(int currentElement, int totalElement)
         {
-            return this.conn.SQLGetSentence("select * from " + Constants.Tables.money_source + " limit " + currentElement + ", " + totalElement + ";");
+            return this.conn.SQLGetSentence("select id, name, total from " + Constants.Tables.money_source + " limit " + currentElement + ", " + totalElement + ";");
         }
 
-        public List<string>[] GetSources()
+        public Dictionary<int, List<string>> GetSources()
         {
-            return this.conn.SQLGetSentence("select * from " + Constants.Tables.money_source + ";");
+            return this.conn.SQLGetSentence("select id, name, total from " + Constants.Tables.money_source + ";");
         }
 
-        public void GetSource(int id)
+        public Dictionary<int, List<string>> GetSource(int id)
         {
-            List<string>[] tmp = this.conn.SQLGetSentence("select * from " + Constants.Tables.money_source + " where id=" + id + ";");
+            return this.conn.SQLGetSentence("select id, name, total from " + Constants.Tables.money_source + " where id=" + id + ";");
+        }
+
+        public int TotalSources()
+        {
+            return this.conn.Count(Constants.Tables.money_source.ToString());
         }
     }
 }

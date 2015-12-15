@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FamilyAccounting.Utils;
 
-namespace FamilyAccounting.Database
+namespace FamilyAccounting.Database.Movement
 {
     class MovementDb
     {
@@ -74,17 +75,17 @@ namespace FamilyAccounting.Database
             conn.SQLSentence("update " + Constants.Tables.money_source + " set total=total+" + total.ToString("0.00") + " where id=" + id);
         }
 
-        public List<string>[] GetMovement(int id)
+        public Dictionary<int, List<string>> GetMovement(int id)
         {
             return conn.SQLGetSentence("select * from " + Constants.Tables.movement + " where id="+id+";");
         }
 
-        public List<string>[] GetMovements()
+        public Dictionary<int, List<string>> GetMovements()
         {
             return conn.SQLGetSentence("select * from " + Constants.Tables.movement + ";");
         }
 
-        public List<string>[] GetMovements(int currentElement, int totalElement)
+        public Dictionary<int, List<string>> GetMovements(int currentElement, int totalElement)
         {
             return conn.SQLGetSentence("select * from " + Constants.Tables.movement + " limit " + currentElement + ", " + totalElement + ";");
         }
