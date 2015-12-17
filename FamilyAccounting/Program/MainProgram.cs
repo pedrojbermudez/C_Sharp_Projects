@@ -32,15 +32,15 @@ namespace FamilyAccounting.Program
                         }
                         else if (sourceOption == 3)
                         {
-
+                            sourceMenu.DeleteSource();
                         }
                         else if (sourceOption == 4)
                         {
-
+                            sourceMenu.ViewSources();
                         }
                         else if (sourceOption == 5)
                         {
-
+                            break;
                         }
                         else if (sourceOption == 6)
                         {

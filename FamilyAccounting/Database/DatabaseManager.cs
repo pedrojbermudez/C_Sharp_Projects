@@ -85,7 +85,7 @@ namespace FamilyAccounting.Database
         /// Close connection to the database.
         /// </summary>
         /// <returns>true it was possible to close, false otherwise</returns>
-        private bool CloseConnection()
+        internal bool CloseConnection()
         {
             try
             {
@@ -125,7 +125,7 @@ namespace FamilyAccounting.Database
         /// </summary>
         /// <param name="sqlSentence">The sql sentence.</param>
         /// <returns></returns>
-        public bool SQLSentence(string sqlSentence)
+        internal bool SQLSentence(string sqlSentence)
         {
             if (this.DBConnection())
             {
@@ -154,9 +154,9 @@ namespace FamilyAccounting.Database
         /// <summary>
         /// Used by select sentences
         /// </summary>
-        /// <param name="sqlSentence">The select sentence</param>
+        /// <param name="sqlSentence">The select sentence for 2 or more fields</param>
         /// <returns>A list with the query result</returns>
-        public Dictionary<int, List<string>> SQLGetSentence(string sqlSentence)
+        internal Dictionary<int, List<string>> SQLGetSentence(string sqlSentence, int totalFields)
         {
             Dictionary<int, List<string>> result = null;
             if (this.DBConnection())
@@ -167,21 +167,16 @@ namespace FamilyAccounting.Database
                     try
                     {
                         reader = cmd.ExecuteReader();
-                        DataTable tbl = new DataTable();
-                        tbl.Load(reader);
-                        int totalRows = tbl.Rows.Count;
-                        int totalFields = tbl.Columns.Count;
                         result = new Dictionary<int, List<string>>();
-                        int currentRow = 0;
+                        Console.WriteLine("reader closed => " + reader.IsClosed);
                         while (reader.Read())
                         {
                             List<string> tmp = new List<string>();
                             for (int i = 1; i < totalFields; i++)
                             {
-                                tmp.Add(reader[i].ToString());
+                                tmp.Add(reader.GetValue(i).ToString());
                             }
                             result.Add(int.Parse(reader[0].ToString()), tmp);
-                            currentRow++;
                         }
                     }
                     catch (MySqlException e)
@@ -192,6 +187,7 @@ namespace FamilyAccounting.Database
                     {
                         if (reader != null)
                         {
+                            Console.WriteLine("reader is something and it will be closed.");
                             reader.Close();
                         }
                         this.CloseConnection();
@@ -208,11 +204,11 @@ namespace FamilyAccounting.Database
         /// </summary>
         /// <param name="table"></param>
         /// <returns>the total count of id</returns>
-        public int Count(string table)
+        internal int Count(string table)
         {
             if (this.DBConnection())
             {
-                using (MySqlCommand cmd = new MySqlCommand("select id from " + table + ";", conn))
+                using (MySqlCommand cmd = new MySqlCommand("select count(id) from " + table + ";", conn))
                 {
                     int count = int.Parse(cmd.ExecuteScalar().ToString());
                     this.CloseConnection();
@@ -224,5 +220,7 @@ namespace FamilyAccounting.Database
                 return -1;
             }
         }
+
+        internal MySqlConnection GetConnection() { return DBConnection() ? conn : null; }
     }
 }

@@ -13,7 +13,7 @@ namespace FamilyAccounting.Utils
         public static char BACK_KEY = 'b';
         public static char PAG_DOWN = 'v';
         public static char PAG_UP = 'c';
-        public static int ELEMENTS_PER_PAGE = 25;
+        public static int ELEMENTS_PER_PAGE = 10;
         public enum Tables { movement, money_source, category};
     }
 }

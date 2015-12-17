@@ -77,17 +77,17 @@ namespace FamilyAccounting.Database.Movement
 
         public Dictionary<int, List<string>> GetMovement(int id)
         {
-            return conn.SQLGetSentence("select * from " + Constants.Tables.movement + " where id="+id+";");
+            return conn.SQLGetSentence("select * from " + Constants.Tables.movement + " where id="+id+";", 1);
         }
 
         public Dictionary<int, List<string>> GetMovements()
         {
-            return conn.SQLGetSentence("select * from " + Constants.Tables.movement + ";");
+            return conn.SQLGetSentence("select * from " + Constants.Tables.movement + ";", 1);
         }
 
         public Dictionary<int, List<string>> GetMovements(int currentElement, int totalElement)
         {
-            return conn.SQLGetSentence("select * from " + Constants.Tables.movement + " limit " + currentElement + ", " + totalElement + ";");
+            return conn.SQLGetSentence("select * from " + Constants.Tables.movement + " limit " + currentElement + ", " + totalElement + ";", 1);
         }
     }
 }

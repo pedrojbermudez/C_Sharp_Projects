@@ -32,14 +32,14 @@ namespace FamilyAccounting.Database.Category
             this.conn.SQLSentence("delete from " + Constants.Tables.category + " where id=" + id + ";");
         }
 
-        public Dictionary<int, List<string>> GetSources(int currentElement, int totalElement)
+        public Dictionary<int, List<string>> GetCategories(int currentElement, int totalElement)
         {
-            return this.conn.SQLGetSentence("select * from " + Constants.Tables.category + " limit " + currentElement + ", " + totalElement + ";");
+            return this.conn.SQLGetSentence("select id, name from " + Constants.Tables.category + " limit " + currentElement + ", " + totalElement + ";", 3);
         }
 
-        public Dictionary<int, List<string>> GetSources()
+        public Dictionary<int, List<string>> GetCategories()
         {
-            return this.conn.SQLGetSentence("select * from " + Constants.Tables.category + ";");
+            return this.conn.SQLGetSentence("select id, name from " + Constants.Tables.category + ";", 2);
         }
     }
 }

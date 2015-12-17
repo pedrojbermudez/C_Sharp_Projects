@@ -36,7 +36,7 @@ namespace FamilyAccounting.Program
             {
                 Console.WriteLine("Please select an option:\n1. Source Menu\n2. Movement Menu\n3. Category Menu\n4. Exit");
                 option = Console.ReadLine();
-            } while (Regex.IsMatch(option, "^[1-4]{1}$"));
+            } while (!Regex.IsMatch(option, "^[1-4]{1}$"));
             return int.Parse(option);
         }
 
@@ -57,7 +57,7 @@ namespace FamilyAccounting.Program
             {
                 Console.WriteLine("Please select an option:\n1. Create a new money source\n2. Edit an existing money source\n3. Delete an existig money source\n4. View all money sources\n5. Back to main menu\n6. Program exit");
                 option = Console.ReadLine();
-            } while (Regex.IsMatch(option, "^[1-6]{1}$"));
+            } while (!Regex.IsMatch(option, "^[1-6]{1}$"));
             return int.Parse(option);
         }
 
@@ -78,7 +78,7 @@ namespace FamilyAccounting.Program
             {
                 Console.WriteLine("Please select an option:\n1. Create a new movement\n2. Edit an existing movement\n3. Delete an existig movement\n4. View all movements\n5. Back to main menu\n6. Program exit");
                 option = Console.ReadLine();
-            } while (Regex.IsMatch(option, "^[1-6]{1}$"));
+            } while (!Regex.IsMatch(option, "^[1-6]{1}$"));
             return int.Parse(option);
         }
 
@@ -99,7 +99,7 @@ namespace FamilyAccounting.Program
             {
                 Console.WriteLine("Please select an option:\n1. Create a new category\n2. Edit an existing category\n3. Delete an existig category\n4. View all categories\n5. Back to main menu\n6. Program exit");
                 option = Console.ReadLine();
-            } while (Regex.IsMatch(option, "^[1-6]{1}$"));
+            } while (!Regex.IsMatch(option, "^[1-6]{1}$"));
             return int.Parse(option);
         }
     }
