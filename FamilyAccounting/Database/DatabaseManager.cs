@@ -174,7 +174,7 @@ namespace FamilyAccounting.Database
                             List<string> tmp = new List<string>();
                             for (int i = 1; i < totalFields; i++)
                             {
-                                tmp.Add(reader.GetValue(i).ToString());
+                                tmp.Add(reader[i].ToString());
                             }
                             result.Add(int.Parse(reader[0].ToString()), tmp);
                         }
@@ -182,6 +182,7 @@ namespace FamilyAccounting.Database
                     catch (MySqlException e)
                     {
                         Console.Write(e.Message);
+                        Console.Read();
                     }
                     finally
                     {

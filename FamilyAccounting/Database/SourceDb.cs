@@ -35,37 +35,37 @@ namespace FamilyAccounting.Database.Source
         public Dictionary<int, List<string>> GetSources(int currentElement, int totalElement)
         {
             Dictionary<int, List<string>> result = null;
-            string sqlSentence = "select id, name, total from " + Constants.Tables.money_source + " limit " + currentElement + ", " + totalElement;
-            using (MySqlCommand cmd = new MySqlCommand(sqlSentence, this.conn.GetConnection()))
-            {
-                MySqlDataReader reader = null;
-                try
-                {
-                    reader = cmd.ExecuteReader();
-                    result = new Dictionary<int, List<string>>();
-                    while (reader.Read())
-                    {
-                        List<string> tmp = new List<string>();
-                        tmp.Add(reader.GetString("name"));
-                        tmp.Add(reader.GetFloat("total").ToString());
-                        result.Add(int.Parse(reader[0].ToString()), tmp);
-                    }
-                }
-                catch (MySqlException e)
-                {
-                    Console.Write(e.Message);
-                }
-                finally
-                {
-                    if (reader != null)
-                    {
-                        reader.Close();
-                    }
-                    this.conn.CloseConnection();
-                }
+             string sqlSentence = "select id, name, total from " + Constants.Tables.money_source + " limit " + currentElement + ", " + totalElement;
+             using (MySqlCommand cmd = new MySqlCommand(sqlSentence, this.conn.GetConnection()))
+             {
+                 MySqlDataReader reader = null;
+                 try
+                 {
+                     reader = cmd.ExecuteReader();
+                     result = new Dictionary<int, List<string>>();
+                     while (reader.Read())
+                     {
+                         List<string> tmp = new List<string>();
+                         tmp.Add(reader.GetString("name"));
+                         tmp.Add(reader.GetFloat("total").ToString());
+                         result.Add(int.Parse(reader[0].ToString()), tmp);
+                     }
+                 }
+                 catch (MySqlException e)
+                 {
+                     Console.Write(e.Message);
+                 }
+                 finally
+                 {
+                     if (reader != null)
+                     {
+                         reader.Close();
+                     }
+                     this.conn.CloseConnection();
+                 }
 
-            }
-            return result;
+             }
+             return result;
         }
 
         public Dictionary<int, List<string>> GetSources()

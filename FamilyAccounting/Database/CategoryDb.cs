@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FamilyAccounting.Utils;
+using MySql.Data.MySqlClient;
 
 namespace FamilyAccounting.Database.Category
 {
@@ -32,14 +33,47 @@ namespace FamilyAccounting.Database.Category
             this.conn.SQLSentence("delete from " + Constants.Tables.category + " where id=" + id + ";");
         }
 
-        public Dictionary<int, List<string>> GetCategories(int currentElement, int totalElement)
+        public Dictionary<int, string> GetCategories(int currentElement, int totalElement)
         {
-            return this.conn.SQLGetSentence("select id, name from " + Constants.Tables.category + " limit " + currentElement + ", " + totalElement + ";", 3);
+            Dictionary<int, string> result = null;
+            string sqlSentence = "select id, name from " + Constants.Tables.category + " limit " + currentElement + ", " + totalElement;
+            using (MySqlCommand cmd = new MySqlCommand(sqlSentence, this.conn.GetConnection()))
+            {
+                MySqlDataReader reader = null;
+                try
+                {
+                    reader = cmd.ExecuteReader();
+                    result = new Dictionary<int, string>();
+                    while (reader.Read())
+                    {
+                        result.Add(int.Parse(reader[0].ToString()), reader.GetString("name"));
+                    }
+                }
+                catch (MySqlException e)
+                {
+                    Console.Write(e.Message);
+                }
+                finally
+                {
+                    if (reader != null)
+                    {
+                        reader.Close();
+                    }
+                    this.conn.CloseConnection();
+                }
+
+            }
+            return result;
         }
 
         public Dictionary<int, List<string>> GetCategories()
         {
             return this.conn.SQLGetSentence("select id, name from " + Constants.Tables.category + ";", 2);
+        }
+
+        public int TotalCategories()
+        {
+            return this.conn.Count(Constants.Tables.category.ToString());
         }
     }
 }
