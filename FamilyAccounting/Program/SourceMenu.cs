@@ -15,12 +15,10 @@ namespace FamilyAccounting.Program
         private SourceDb sourceDb;
         private Pagination pagination;
         private static int currentPage;
-        private static bool back;
 
         public SourceMenu()
         {
             currentPage = 0;
-            back = false;
             pagination = new Pagination();
             sourceDb = new SourceDb();
         }
@@ -33,8 +31,8 @@ namespace FamilyAccounting.Program
             do
             {
                 Console.WriteLine("Do you want to create a new money source?(Y/y/N/n)");
-                answer = Console.ReadLine();
-            } while (!answer.ToLower().Equals("y") && !answer.ToLower().Equals("n"));
+                answer = Console.ReadLine().ToLower();
+            } while (!answer.Equals("y") && !answer.Equals("n"));
             if (answer.Equals("y"))
             {
                 do
@@ -46,7 +44,7 @@ namespace FamilyAccounting.Program
                 {
                     Console.WriteLine("Please introduce a total value for the money source (format [-]x.xx):");
                     total = Console.ReadLine();
-                } while (!Regex.IsMatch(total, Constants.DECIMAL_TOTAL_NUMBER_REGEX));
+                } while (!Regex.IsMatch(total, Constants.DECIMAL_NUMBER_REGEX));
                 sourceDb.NewSource(name, total);
             }
         }
@@ -56,85 +54,106 @@ namespace FamilyAccounting.Program
             string id;
             string name;
             string total;
-            List<string> editSource;
-            currentPage = 1;
-            Dictionary<int, List<string>> sources;
-            bool[] prevNext;
-            pagination.TotalPages(TotalSources());
+            string answer = null;
+            List<string> source;
             while (true)
             {
-                sources = ShowSources((currentPage - 1) * Constants.ELEMENTS_PER_PAGE, Constants.ELEMENTS_PER_PAGE);
-                prevNext = pagination.ShowPagination(currentPage);
-                // Showing the data.
+                // Showing the data and asking if want to edit or not.
                 do
                 {
-                    Console.WriteLine("ID | Name | Total");
-                    foreach (KeyValuePair<int, List<string>> source in sources)
+                    source = SelectSource(true);
+                    if (source.ElementAt(0).Equals("-1"))
                     {
-                        Console.WriteLine(source.Key + " | " + String.Join(" | ", source.Value.ToArray()));
+                        break;
                     }
-                    Console.WriteLine("Please select an id or press " + Constants.BACK_KEY + " if you wish to back. " + Constants.PAG_UP + " to back page " + Constants.PAG_DOWN + " to next page");
-                    id = Console.ReadLine();
-                } while (!Regex.IsMatch(id, "^[0-9]+$") && !id.Equals(Constants.BACK_KEY.ToString()) && !id.Equals(Constants.PAG_DOWN.ToString()) && !id.Equals(Constants.PAG_UP.ToString()));
-                if (id.Equals(Constants.BACK_KEY.ToString()))
+                    Console.WriteLine("Do you want to edit that source?(Y/y/N/n)\nID " + source.ElementAt(0) + " | Name " + source.ElementAt(1) + " | Total " + source.ElementAt(2));
+                    answer = Console.ReadLine().ToLower();
+                } while (!answer.Equals("n") && !answer.Equals("y"));
+                if (source.ElementAt(0).Equals("-1") || answer.Equals("y"))
                 {
                     break;
                 }
-                else if (prevNext[1] && id.Equals(Constants.PAG_DOWN.ToString()))
+            }
+            if (!source.ElementAt(0).Equals("-1"))
+            {
+                do
                 {
-                    currentPage++;
-                }
-                else if (prevNext[0] && id.Equals(Constants.PAG_UP.ToString()))
+                    Console.WriteLine("Current name: " + source.ElementAt(1) + "\nDo you wish to change it?(Y/y/N/n)");
+                    answer = Console.ReadLine().ToLower();
+                } while (!answer.Equals("y") && !answer.Equals("n"));
+                if (answer.Equals("y"))
                 {
-                    currentPage--;
-                }
-                else if (Regex.IsMatch(id, "^[0-9]+$") && sources.ContainsKey(int.Parse(id)))
-                {
-                    sources.TryGetValue(int.Parse(id), out editSource);
-                    string answer;
                     do
                     {
-                        Console.WriteLine("Current name: " + editSource.ElementAt(0) + "\nDo you wish to change it?(Y/y/N/n)");
-                        answer = Console.ReadLine().ToLower();
-                    } while (!answer.Equals("y") && !answer.Equals("n"));
-                    if (answer.Equals("y"))
-                    {
-                        do
-                        {
-                            Console.WriteLine("Introduce the new name:");
-                            name = Console.ReadLine();
-                        } while (name.Equals(""));
-                    }
-                    else
-                    {
-                        name = editSource.ElementAt(0);
-                    }
+                        Console.WriteLine("Introduce the new name:");
+                        name = Console.ReadLine();
+                    } while (name.Equals(""));
+                }
+                else
+                {
+                    name = source.ElementAt(1);
+                }
+                do
+                {
+                    Console.WriteLine("Current total value: " + source.ElementAt(2) + "\nDo you wish to change it?(Y/y/N/n)");
+                    answer = Console.ReadLine().ToLower();
+                } while (!answer.Equals("y") && !answer.Equals("n"));
+                if (answer.Equals("y"))
+                {
                     do
                     {
-                        Console.WriteLine("Current total value: " + editSource.ElementAt(1) + "\nDo you wish to change it?(Y/y/N/n)");
-                        answer = Console.ReadLine().ToLower();
-                    } while (!answer.Equals("y") && !answer.Equals("n"));
-                    if (answer.Equals("y"))
-                    {
-                        do
-                        {
-                            Console.WriteLine("Introduce the new total value:");
-                            total = Console.ReadLine();
-                        } while (!Regex.IsMatch(total, Constants.DECIMAL_TOTAL_NUMBER_REGEX));
-                    }
-                    else
-                    {
-                        total = editSource.ElementAt(1);
-                    }
-                    sourceDb.EditSource(int.Parse(id), name, total);
+                        Console.WriteLine("Introduce the new total value:");
+                        total = Console.ReadLine();
+                    } while (!Regex.IsMatch(total, Constants.DECIMAL_NUMBER_REGEX));
                 }
+                else
+                {
+                    total = source.ElementAt(2);
+                }
+                sourceDb.EditSource(int.Parse(source.ElementAt(0)), name, total);
             }
         }
 
         public void DeleteSource()
         {
+            List<string> source;
+            while (true)
+            {
+                string answer = null;
+                do
+                {
+                    source = SelectSource(true);
+                    if (source.Equals("-1"))
+                    {
+                        break;
+                    }
+                    Console.WriteLine("Do you want to delete that source?(Y/y/N/n)\nID " + source.ElementAt(0)
+                        + " | Name " + source.ElementAt(1) + " | Total " + source.ElementAt(2));
+                    answer = Console.ReadLine().ToLower();
+                } while (!answer.Equals("n") && !answer.Equals("y"));
+                if (source.ElementAt(0).Equals("-1") || answer.Equals("y"))
+                {
+                    break;
+                }
+            }
+            if (!source.ElementAt(0).Equals("-1"))
+            {
+                sourceDb.DeleteSource(int.Parse(source.ElementAt(0)));
+            }
+        }
+
+        public void ViewSources()
+        {
+            List<string> sources = null;
+            while (sources == null)
+            {
+                sources = SelectSource(false);
+            }
+        }
+
+        private List<string> SelectSource(bool editDelete)
+        {
             string id;
-            List<string> deleteSource;
             currentPage = 1;
             Dictionary<int, List<string>> sources;
             bool[] prevNext;
@@ -143,20 +162,43 @@ namespace FamilyAccounting.Program
             {
                 sources = ShowSources((currentPage - 1) * Constants.ELEMENTS_PER_PAGE, Constants.ELEMENTS_PER_PAGE);
                 prevNext = pagination.ShowPagination(currentPage);
-                // Showing the data.
                 do
                 {
-                    Console.WriteLine("ID | Name | Total");
+                    Console.WriteLine("ID | Name | Total ");
                     foreach (KeyValuePair<int, List<string>> source in sources)
                     {
-                        Console.WriteLine(source.Key + " | " + String.Join(" | ", source.Value.ToArray()));
+                        Console.WriteLine(source.Key + " | " + source.Value.ElementAt(0) + " | " + source.Value.ElementAt(1));
                     }
-                    Console.WriteLine("Please select an id or press " + Constants.BACK_KEY + " if you wish to back. " + Constants.PAG_UP + " to back page " + Constants.PAG_DOWN + " to next page");
+                    if (!prevNext[0] && prevNext[1])
+                    {
+                        Console.WriteLine("Current page: " + currentPage + "\nPress " + Constants.PAG_DOWN
+                            + " to next page or " + Constants.BACK_KEY + " to back to money source menu");
+                    }
+                    else if (prevNext[0] && prevNext[1])
+                    {
+                        Console.WriteLine("Current page: " + currentPage + "\nPress " + Constants.PAG_UP + " to back page or "
+                            + Constants.PAG_DOWN + " to next page or " + Constants.BACK_KEY + " to back to money source menu");
+                    }
+                    else if (prevNext[0] && !prevNext[1])
+                    {
+                        Console.WriteLine("Current page: " + currentPage + "\nPress " + Constants.PAG_UP
+                            + " to back page or " + Constants.BACK_KEY + " to back to money source menu");
+                    }
+                    else if (!prevNext[0] && !prevNext[1])
+                    {
+                        Console.WriteLine("Press " + Constants.BACK_KEY + " to back to money source menu");
+                    }
+                    if (editDelete)
+                    {
+                        Console.WriteLine("Select an ID if you wish to work with it");
+                    }
                     id = Console.ReadLine();
                 } while (!Regex.IsMatch(id, "^[0-9]+$") && !id.Equals(Constants.BACK_KEY.ToString()) && !id.Equals(Constants.PAG_DOWN.ToString()) && !id.Equals(Constants.PAG_UP.ToString()));
                 if (id.Equals(Constants.BACK_KEY.ToString()))
                 {
-                    break;
+                    List<string> movementSelected = new List<string>();
+                    movementSelected.Add("-1");
+                    return movementSelected;
                 }
                 else if (prevNext[1] && id.Equals(Constants.PAG_DOWN.ToString()))
                 {
@@ -166,59 +208,12 @@ namespace FamilyAccounting.Program
                 {
                     currentPage--;
                 }
-                else if (Regex.IsMatch(id, "^[0-9]+$") && sources.ContainsKey(int.Parse(id)))
+                else if (editDelete && Regex.IsMatch(id, "^[0-9]+$") && sources.ContainsKey(int.Parse(id)))
                 {
-                    // ID is correct.
-                    string answer;
-                    sources.TryGetValue(int.Parse(id), out deleteSource);
-                    do
-                    {
-                        Console.WriteLine("The choosed source: id => " + id + " | name => " + deleteSource.ElementAt(0) + " | total => " + deleteSource.ElementAt(1) + "\nDo you wish to delete it?(Y/y/N/n)");
-                        answer = Console.ReadLine().ToLower();
-                    } while (!answer.Equals("y") && !answer.Equals("n"));
-                    if (answer.Equals("y"))
-                    {
-                        // Deleting source.
-                        sourceDb.DeleteSource(int.Parse(id));
-                        pagination.TotalPages(TotalSources());
-                        break;
-                    }
-                }
-            }
-        }
-
-        public void ViewSources()
-        {
-            int currentPage = 1;
-            Dictionary<int, List<string>> sources;
-            int totalPages = pagination.TotalPages(TotalSources());
-            bool[] prevNext;
-            while (true)
-            {
-                string option;
-                prevNext = pagination.ShowPagination(currentPage);
-                sources = ShowSources((currentPage - 1) * Constants.ELEMENTS_PER_PAGE, Constants.ELEMENTS_PER_PAGE);
-                do
-                {
-                    Console.WriteLine("ID | Name | Total");
-                    foreach (KeyValuePair<int, List<string>> source in sources)
-                    {
-                        Console.WriteLine(source.Key + " | " + String.Join(" | ", source.Value));
-                    }
-                    Console.WriteLine("Please select an option: " + Constants.PAG_UP + " to back page, " + Constants.PAG_DOWN + " to next page, " + Constants.BACK_KEY + " to back to money source menu");
-                    option = Console.ReadLine();
-                } while (!option.Equals(Constants.PAG_UP.ToString()) && !option.Equals(Constants.PAG_DOWN.ToString()) && !option.Equals(Constants.BACK_KEY.ToString()));
-                if (prevNext[1] && option.Equals(Constants.PAG_DOWN.ToString()))
-                {
-                    currentPage++;
-                }
-                else if (prevNext[0] && option.Equals(Constants.PAG_UP.ToString()))
-                {
-                    currentPage--;
-                }
-                else if (option.Equals(Constants.BACK_KEY.ToString()))
-                {
-                    break;
+                    List<string> sourceSelected;
+                    sources.TryGetValue(int.Parse(id), out sourceSelected);
+                    sourceSelected.Insert(0, id);
+                    return sourceSelected;
                 }
             }
         }
@@ -231,11 +226,6 @@ namespace FamilyAccounting.Program
         public Dictionary<int, List<string>> ShowSources(int currentElement, int totalElement = 25)
         {
             return sourceDb.GetSources(currentElement, totalElement);
-        }
-
-        public void SetBack()
-        {
-            back = back ? !back : back;
         }
     }
 }

@@ -33,11 +33,12 @@ namespace FamilyAccounting.Program
             bool[] prevNext = new bool[2];
             if (this.totalPages == 1)
             {
-                Console.WriteLine("1");
+                Console.WriteLine("\nNo more pages.");
                 return prevNext;
             }
             else
             {
+                Console.WriteLine("\npage " + currentPage + "/" + this.totalPages);
                 if (currentPage == 1)
                 {
                     Console.WriteLine("Press " + Constants.PAG_DOWN + " if you wish to go to page 2.");

@@ -34,9 +34,9 @@ namespace FamilyAccounting.Program
             }
             do
             {
-                Console.WriteLine("Please select an option:\n1. Source Menu\n2. Movement Menu\n3. Category Menu\n4. Exit");
+                Console.WriteLine("Please select an option:\n1. Source Menu\n2. Movement Menu\n3. Category Menu\n4. Help\n5. Exit");
                 option = Console.ReadLine();
-            } while (!Regex.IsMatch(option, "^[1-4]{1}$"));
+            } while (!Regex.IsMatch(option, "^[1-5]{1}$"));
             return int.Parse(option);
         }
 
@@ -101,6 +101,13 @@ namespace FamilyAccounting.Program
                 option = Console.ReadLine();
             } while (!Regex.IsMatch(option, "^[1-6]{1}$"));
             return int.Parse(option);
+        }
+
+        public int HelpMenu()
+        {
+            Console.WriteLine("To use it you must create at least one money source and one category.\nPress any button which are displayed.\nTo back to main menu press any button");
+            Console.ReadKey();
+            return -1;
         }
     }
 }

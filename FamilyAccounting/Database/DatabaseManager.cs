@@ -10,6 +10,7 @@ namespace FamilyAccounting.Database
     {
         private static MySqlConnection conn;
         private string dataConnection;
+        private static bool createDefaultValues = true;
 
         /// <summary>
         /// Default user, password, database and server
@@ -17,9 +18,14 @@ namespace FamilyAccounting.Database
         public DatabaseManager()
         {
             dataConnection = "server=127.0.0.1;user=root;password=toor;"
-                + "database=family_acounting;";
+                + "database=family_accounting;";
             conn = new MySqlConnection(dataConnection);
             CreateTables();
+            if (createDefaultValues)
+            {
+                CreateDefaultValues();
+                createDefaultValues = false;
+            }
         }
 
         /// <summary>
@@ -32,6 +38,12 @@ namespace FamilyAccounting.Database
                 + "database=family_accounting;";
             conn = new MySqlConnection(dataConnection);
             CreateTables();
+            if (createDefaultValues)
+            {
+                CreateDefaultValues();
+                createDefaultValues = false;
+            }
+            
         }
 
         /// <summary>
@@ -110,9 +122,9 @@ namespace FamilyAccounting.Database
                     // create table movement
                     "create table if not exists " + Constants.Tables.category.ToString() + " (id int PRIMARY KEY AUTO_INCREMENT, name blob not null); "
                     //create table money_source
-                    + "create table if not exists " + Constants.Tables.money_source.ToString() + " (id int PRIMARY KEY AUTO_INCREMENT, name blob not null, total int not null); "
+                    + "create table if not exists " + Constants.Tables.money_source.ToString() + " (id int PRIMARY KEY AUTO_INCREMENT, name blob not null, total float not null); "
                     // create table movement
-                    + "create table if not exists " + Constants.Tables.movement.ToString() + " (id INTEGER PRIMARY KEY AUTO_INCREMENT NOT NULL, source_id int not null, category_id int not null, name mediumblob not null, movement_date date not null, income int, outgoing int, constraint source_id_movementsfk foreign key(source_id) references " + Constants.Tables.money_source.ToString() + "(id) on update cascade on delete cascade, constraint category_id_movementfk foreign key(category_id) references " + Constants.Tables.category.ToString() + "(id) on update cascade on delete cascade);", conn))
+                    + "create table if not exists " + Constants.Tables.movement.ToString() + " (id INTEGER PRIMARY KEY AUTO_INCREMENT NOT NULL, source_id int not null, category_id int not null default 1, name mediumblob not null, movement_date date not null, income float, outgoing float, constraint source_id_movementsfk foreign key(source_id) references " + Constants.Tables.money_source.ToString() + "(id) on update cascade on delete cascade, constraint category_id_movementfk foreign key(category_id) references " + Constants.Tables.category.ToString() + "(id) on update cascade);", conn))
                 {
                     cmd.ExecuteNonQuery();
                     this.CloseConnection();
@@ -188,7 +200,6 @@ namespace FamilyAccounting.Database
                     {
                         if (reader != null)
                         {
-                            Console.WriteLine("reader is something and it will be closed.");
                             reader.Close();
                         }
                         this.CloseConnection();
@@ -220,6 +231,11 @@ namespace FamilyAccounting.Database
             {
                 return -1;
             }
+        }
+
+        private void CreateDefaultValues()
+        {
+            SQLSentence("replace into " + Constants.Tables.category + " values (1, \"NO CATEGORY\");");
         }
 
         internal MySqlConnection GetConnection() { return DBConnection() ? conn : null; }
